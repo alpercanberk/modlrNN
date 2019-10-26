@@ -7,7 +7,7 @@ cube = pywavefront.Wavefront('tinker.obj', collect_faces=True)
 vertices = cube.vertices
 faces = cube.mesh_list[0].faces
 
-EDGE_LENGTHS = np.array([25,25,25])
+EDGE_LENGTHS = np.array([200,200,200])
 
 min_coordinates = np.array([9999 ,9999, 9999])
 max_coordinates = np.array([-9999 ,-9999, -9999])
@@ -128,12 +128,12 @@ for vertex in edges:
         if(vertex[i] < min_coordinates[i]):
             min_coordinates[i]=vertex[i]
 
-shifted_again = shift(min_coordinates*-1, edges)
+shifted_again = shift((min_coordinates+2)*-1, edges)
 
 cube_space = np.zeros((EDGE_LENGTHS[0],EDGE_LENGTHS[1],EDGE_LENGTHS[2]))
 
 for vertex in shifted_again:
-    cube_space[int(vertex[0]) - 1][int(vertex[1]) -1 ][int(vertex[2]) - 1] = 1
+    cube_space[int(vertex[0]) + 1][int(vertex[1]) + 1][int(vertex[2]) + 1] = 1
 
 from vpython import sphere, vec, color, box
 
