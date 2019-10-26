@@ -7,7 +7,7 @@ cube = pywavefront.Wavefront('tinker.obj', collect_faces=True)
 vertices = cube.vertices
 faces = cube.mesh_list[0].faces
 
-EDGE_LENGTHS = np.array([200,200,200])
+EDGE_LENGTHS = np.array([50,50,50])
 
 min_coordinates = np.array([9999 ,9999, 9999])
 max_coordinates = np.array([-9999 ,-9999, -9999])
@@ -45,8 +45,8 @@ def form_edge(v1, v2):
 
     len_delta_v = int(np.sqrt(np.sum(delta_v**2))) + 1
     new_vertices = []
-    for i in range(0, len_delta_v):
-        new_vertices.append(v1 + (i/len_delta_v)*delta_v)
+    for i in range(0, 2*len_delta_v):
+        new_vertices.append(v1 + (i/(2*len_delta_v))*delta_v)
 
     return new_vertices
 
