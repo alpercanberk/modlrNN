@@ -2,12 +2,14 @@ import pywavefront
 import math
 import numpy as np
 import pyglet
+import sys
+
 cube = pywavefront.Wavefront('tinker.obj', collect_faces=True)
 
 vertices = cube.vertices
 faces = cube.mesh_list[0].faces
 
-EDGE_LENGTHS = np.array([50,50,50])
+EDGE_LENGTHS = np.array([100,100,100])
 
 min_coordinates = np.array([9999 ,9999, 9999])
 max_coordinates = np.array([-9999 ,-9999, -9999])
@@ -29,10 +31,12 @@ print("min coordinates", min_coordinates)
 print("delta coordinates", delta_coordinates)
 
 def find_scaling_factor(delta_coordinates, EDGE_LENGTH):
-    scaling_factors = np.array([0,0,0])
+    scaling_factors = 0
     for i in range(0, 3):
-        scaling_factors = EDGE_LENGTHS / delta_coordinates
-    print("scaling factors ", scaling_factors)
+        #this assumes that it's a cube
+        max_delta = np.max(delta_coordinates)
+        scaling_factors = (EDGE_LENGTHS[0] / max_delta)*(48/50)
+    print("scaling factor", scaling_factors)
     return scaling_factors
 
 def find_midpoint(v1, v2):
@@ -128,17 +132,47 @@ for vertex in edges:
         if(vertex[i] < min_coordinates[i]):
             min_coordinates[i]=vertex[i]
 
-shifted_again = shift((min_coordinates+2)*-1, edges)
+shifted_again = shift((min_coordinates)*-1, edges)
 
 cube_space = np.zeros((EDGE_LENGTHS[0],EDGE_LENGTHS[1],EDGE_LENGTHS[2]))
 
 for vertex in shifted_again:
-    cube_space[int(vertex[0]) + 1][int(vertex[1]) + 1][int(vertex[2]) + 1] = 1
+    cube_space[int(vertex[0])][int(vertex[1])][int(vertex[2])] = 1
 
-from vpython import sphere, vec, color, box
+sys.setrecursionlimit(EDGE_LENGTHS[0]**3)
+
+def fill(coordinates, cube_space):
+    x = coordinates[0]
+    y = coordinates[1]
+    z = coordinates[2]
+    cube_space[x][y][z] = 1
+    if(cube_space[x][y][z+1] == 0):
+        cube_space[x][y][z+1] = 1
+        cube_space = fill([x, y, z+1], cube_space)
+    if(cube_space[x][y][z-1] == 0):
+        cube_space[x][y][z-1] = 1
+        cube_space = fill([x, y, z-1], cube_space)
+    if(cube_space[x][y+1][z] == 0):
+        cube_space[x][y+1][z] = 1
+        cube_space = fill([x, y+1, z], cube_space)
+    if(cube_space[x][y-1][z] == 0):
+        cube_space[x][y-1][z] = 1
+        cube_space = fill([x, y-1, z], cube_space)
+    if(cube_space[x+1][y][z] == 0):
+        cube_space[x+1][y][z] = 1
+        cube_space = fill([x+1, y, z], cube_space)
+    if(cube_space[x-1][y][z] == 0):
+        cube_space[x-1][y][z] = 1
+        cube_space =fill([x-1, y, z], cube_space)
+    return cube_space
+avg = np.average(shifted_again, axis=0).astype(int)
+
+# cube_space = fill(avg, cube_space)
+
+from vpython import sphere, vec, color, box, vector
 
 for i in range(EDGE_LENGTHS[0]):
     for j in range(EDGE_LENGTHS[1]):
         for k in range(EDGE_LENGTHS[2]):
             if(cube_space[i][j][k] == 1):
-                box(pos=vec(i,j,k), color=color.red)
+                box(pos=vec(i,j,k), color=color.hsv_to_rgb(vector(i/50 + .5,j/50 + .5,k/50 +.5)), opacity=0.7)
