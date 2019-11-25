@@ -1,6 +1,8 @@
 
 import numpy as np
 
+#I made my own .obj file parser
+
 def parse_obj(path):
 
     vertices=[]

@@ -7,7 +7,7 @@ import sys
 from object_parser import parse_obj
 
 def voxel(path, edge_length):
-    
+
     vertices, faces = parse_obj(path)
 
     #sorry for the messy array, I initially programmed this differently
